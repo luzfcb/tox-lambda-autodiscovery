@@ -5,7 +5,7 @@
 
 [![Python versions](https://img.shields.io/pypi/pyversions/tox-lambda-autodiscovery.svg)](https://pypi.org/project/tox-lambda-autodiscovery)
 
-[![See Build Status on Travis CI](https://travis-ci.org/luzfcb/tox-lambda-autodiscovery.svg?branch=master)](https://travis-ci.org/luzfcb/tox-lambda-autodiscovery)
+[![See Build Status on Travis CI](https://travis-ci.com/luzfcb/tox-lambda-autodiscovery.svg?branch=master)](https://travis-ci.com/luzfcb/tox-lambda-autodiscovery)
 
 [![See Build Status on AppVeyor](https://ci.appveyor.com/api/projects/status/github/luzfcb/tox-lambda-autodiscovery?branch=master)](https://ci.appveyor.com/project/luzfcb/tox-lambda-autodiscovery/branch/master)
 
