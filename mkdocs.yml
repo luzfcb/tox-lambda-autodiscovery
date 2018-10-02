@@ -1,0 +1,10 @@
+site_name: tox-lambda-autodiscovery
+site_description: autodiscovery and autocreate tox testenv to aws lambda functionn s
+site_author: Fabio C. Barrionuevo da Luz
+
+theme: readthedocs
+
+repo_url: https://github.com/luzfcb/tox-lambda-autodiscovery
+
+pages:
+- Home: index.md
