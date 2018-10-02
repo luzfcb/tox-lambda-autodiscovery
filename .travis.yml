@@ -18,6 +18,7 @@ install:
 
 script:
   - tox -e $TOX_ENV
+  - tox -e codecov
 
 before_cache:
   - rm -rf $HOME/.cache/pip/log
