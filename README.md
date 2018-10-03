@@ -9,6 +9,9 @@
 
 [![See Build Status on AppVeyor](https://ci.appveyor.com/api/projects/status/github/luzfcb/tox-lambda-autodiscovery?branch=master)](https://ci.appveyor.com/project/luzfcb/tox-lambda-autodiscovery/branch/master)
 
+[![Coverage 
+Status](https://coveralls.io/repos/github/luzfcb/tox-lambda-autodiscovery/badge.svg)](https://coveralls.io/github/luzfcb/tox-lambda-autodiscovery)
+
 autodiscovery and autocreate tox testenv to aws lambda functions
 
 ------------------------------------------------------------------------
