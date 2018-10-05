@@ -18,14 +18,14 @@ with [Cookiecutter](https://github.com/audreyr/cookiecutter) along with
 template.
 
 
-
 ### This project is not yet ready for production.
+
 
 ## Features
 
-- Autodiscovery and autocreate tox testenv to aws lambda function.
+Autodiscovery and autocreate tox testenv to aws lambda function.
 
-### TODO
+## TODO
 
 - [ ] Find way to create a new `{current_lambdadir}`, `current_envname` to customize `command`
 
@@ -58,15 +58,16 @@ $ pip install -e git+https://github.com/luzfcb/tox-lambda-autodiscovery@master#e
 
 Add a new section named `[testenv:lambdaautodiscovery]` on `tox.ini`.
 
-> The plugin only is active when the section `[testenv:lambdaautodiscovery]` exists.
+> The plugin is active only when the section `[testenv:lambdaautodiscovery]` exists.
+
 
 ### Configuration options for `[testenv:lambdaautodiscovery]`
 
 #### `search_base_dirs`
 
-`search_base_dirs`: A list of directories that the plugin uses as autodiscover. _The default value is `{toxinidir}`_.
+A list of directories that the plugin uses as autodiscover. _The default value is `{toxinidir}`_.
 
-**Example**:
+##### Example
 
 Having a list of directories, with subdirectories, which contains a file `requirements.txt`, and a python file started with `test` on the same directory level:
 
@@ -96,50 +97,42 @@ The `search_base_dirs` looks like the following:
 ```ini
 search_base_dirs = backend1
                    backend2
-
 ```
 
 #### `ignored_dir_names`
 
-`ignored_dir_names`: Directories that the plugin should ignore in autodiscovery.
+Directories that the plugin should ignore in autodiscovery.
 
-**Example**:
+##### Example
 
 ```
 ignored_dir_names = .serverless
                     .vscode
-
 ```
 
 The directories with the following names are ignored by default:
 
 ```
-    .tox
-    __pycache__
-    eggs/
-    .eggs/
-    node_modules
+.tox
+__pycache__
+eggs/
+.eggs/
+node_modules
 ```
 
-If you want to override the default ignored directories names, use the following option:
+> If you want to override the default ignored directories names, use the option `default_ignored_dir_names`.
 
-```
-default_ignored_dir_names
-```
 
 ## Contributing
 
-
 Contributions are very welcome. Tests can be run with [tox](https://tox.readthedocs.io/en/latest/), please ensure the coverage at least stays the same before you submit a pull request.
+
 
 ## License
 
+Distributed under the terms of the [MIT](http://opensource.org/licenses/MIT) license, `tox-lambda-autodiscovery` is free and open source software.
 
-Distributed under the terms of the
-[MIT](http://opensource.org/licenses/MIT) license,
-\"tox-lambda-autodiscovery\" is free and open source software
 
 ## Issues
-
 
 If you encounter any problems, please [file an issue](https://github.com/luzfcb/tox-lambda-autodiscovery/issues) along with a detailed description.
