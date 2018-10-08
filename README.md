@@ -25,18 +25,9 @@ template.
 
 Autodiscovery and autocreate tox testenv to aws lambda function.
 
-## TODO
-
-- [ ] Find way to create a new `{current_lambdadir}`, `current_envname` to customize `command`
-
-```
-commands =
-  {posargs:pytest} --cov={current_lambdadir} --basetemp={envtmpdir}
-```
-
 TODO:
-  - rewrite code when tox api is more flexible: https://mail.python.org/mm3/archives/list/tox-dev@python.org/thread/2B2GXTFWCE6FYMVCMBMKAOQAXEOGXEWR/
-  - Write tests
+- [ ] rewrite code when tox api is more flexible: https://mail.python.org/mm3/archives/list/tox-dev@python.org/thread/2B2GXTFWCE6FYMVCMBMKAOQAXEOGXEWR/
+- [ ] Write tests
 
 ## Requirements
 
