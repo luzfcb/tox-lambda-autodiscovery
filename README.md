@@ -34,7 +34,9 @@ commands =
   {posargs:pytest} --cov={current_lambdadir} --basetemp={envtmpdir}
 ```
 
-- [ ] Write tests
+TODO:
+  - rewrite code when tox api is more flexible: https://mail.python.org/mm3/archives/list/tox-dev@python.org/thread/2B2GXTFWCE6FYMVCMBMKAOQAXEOGXEWR/
+  - Write tests
 
 ## Requirements
 
@@ -122,6 +124,87 @@ node_modules
 
 > If you want to override the default ignored directories names, use the option `default_ignored_dir_names`.
 
+
+the `commands_workaround` is a way to customize tox `commands`
+
+eg.:
+
+```
+commands_workaround = {posargs:pytest} --cov={current_toxenv_lambda_dir} --basetemp={envtmpdir}
+```
+
+> is ugly, but, tox 3.3.0 api has no simple way to defer processing of `commands`
+
+
+The `PYTHONPATH` can be customized by setting
+
+```
+setenv =
+    PYTHONPATH = {toxinidir}/backend/
+```
+
+### Full sample config:
+
+the following directories structure:
+
+```
+(myproject) fabio@luzfcb:~/projects$ tree myproject -L 2
+myproject
+├── README.md
+├── backend
+│   ├── README.md
+│   ├── .serverless
+│   │     ├── serverless-state.json
+│   │     ├── cloudformation-template-create-stack.json
+│   │     ├── functionOne
+│   │     │     ├── requirements
+│   │     │     └── requirements.txt
+│   │     ├── functionTwo
+│   │     │     ├── requirements
+│   │     │     └── requirements.txt
+│   ├── functionOne
+│   │     ├── function_one.py
+│   │     ├── test_function_one.py 
+│   │     └── requirements.txt
+│   ├── functionTwo
+│   │     ├── function_two.py
+│   │     ├── test_function_two.py 
+│   │     └── requirements.txt
+│   ├── apps
+│   │     └── configure_django
+│   │     │     └── __init__.py
+│   │     └── myapp
+│   │           ├── __init__.py
+│   │           ├── apps.py
+│   │           ├── models.py
+│   │           └── migrations
+│   └── serverless.yml
+├── buildspec.yaml
+├── cloudformation
+│   └── dev-resources.yaml
+├── codecov.yml
+├── requirements.txt
+├── requirements_dev.txt
+├── setup.cfg
+├── testspec.yaml
+└── tox.ini
+```
+
+
+The configuration:
+
+```
+[testenv:lambdaautodiscovery]
+commands_workaround = {posargs:pytest} --cov-append --cov={current_toxenv_lambda_dir} --basetemp={envtmpdir}
+
+ignored_dir_names = .serverless
+
+search_base_dirs = backend
+
+setenv =
+    PYTHONPATH = {toxinidir}/backend/apps
+
+```
 
 ## Contributing
 

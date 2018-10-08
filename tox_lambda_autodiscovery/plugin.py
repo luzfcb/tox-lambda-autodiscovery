@@ -5,12 +5,17 @@ from pathlib import Path
 
 import pluggy
 import tox.config
+from tox.config import _ArgvlistReader
+from py._path.local import LocalPath
 
 hookimpl = pluggy.HookimplMarker("tox")
 
 log = logging.getLogger('lambda-autodiscovery')
 
-SECTION_NAME = 'testenv:lambdaautodiscovery'
+ENV_CONFIG_NAME = 'lambdaautodiscovery'
+ENV_PREFIX = 'lambda'
+SECTION_PREFIX = 'testenv'
+SECTION_NAME = '{}:{}'.format(SECTION_PREFIX, ENV_CONFIG_NAME)
 
 RE_REQUIREMENTS_FILE = re.compile(r'^(requirements\.txt)$')
 RE_TEST_FILES = re.compile(r'^(test(.*)\.py)$')
@@ -29,6 +34,24 @@ def tox_configure(config):
     if not config._cfg.sections.get(SECTION_NAME):
         return
     reader = tox.config.SectionReader(SECTION_NAME, config._cfg)
+    # workaround: used to generate the 'commands' on new tox testenv
+    commands_template = reader.getstring('commands_workaround', replace=False)
+
+    try:
+        # remove 'lambdaautodiscovery' section from available tox testenv
+        config.envlist.remove(ENV_CONFIG_NAME)
+    except ValueError:  # this error is raised if 'tox -e'
+        pass
+
+    # add current_toxenv_lambda_dir and current_toxenv_name
+    # to make tox happy, and not get an error
+    reader.addsubstitutions(current_toxenv_lambda_dir='')
+    reader.addsubstitutions(current_toxenv_name='')
+
+    coveragerc_file = Path(config.toxinidir, '.coveragerc')
+    has_coveragerc_file = False
+    if coveragerc_file.exists():
+        has_coveragerc_file = True
 
     # extracted fom tox-travis
     distshare_default = "{homedir}/.tox/distshare"
@@ -56,8 +79,17 @@ def tox_configure(config):
 
     ignored_dir_names_regex = build_compiled_regex(ignored_dir_names)
 
+    # help to customize PYTHONPATH
+    setenv_dict = reader.getdict_setenv('setenv')
+    if setenv_dict:
+        pythonpath_template = setenv_dict.get('PYTHONPATH')
+    else:
+        pythonpath_template = None
+
     if not search_base_dirs:
         search_base_dirs = [config.toxinidir]
+
+    deps = reader.getlist('deps')
 
     search_base_dirs = set(search_base_dirs)
     new_envs_configs = []
@@ -77,29 +109,61 @@ def tox_configure(config):
     make_envconfig = getattr(make_envconfig, '__func__', make_envconfig)
     # end
 
-    for env in new_envs_configs:
+    for env in reversed(new_envs_configs):
         env_name = env.get('envname')
         _dir = env.get('dir')
         dir_str = str(_dir)
-        section = tox.config.testenvprefix + env_name
-        new_env = make_envconfig(
-            config, env_name, section, reader._subs, config)
-        new_env.changedir = _dir
-        new_env.setenv['PYTHONPATH'] = str(_dir)
+        section_name = '{}{}'.format(tox.config.testenvprefix, env_name)
 
+        # create new tox testenv
+        new_env = make_envconfig(
+            config, env_name, section_name, reader._subs, config)
+
+        new_env.changedir = _dir
+        substitutions = reader._subs.copy()
+        substitutions.update({
+            'changedir': _dir,
+            'current_toxenv_lambda_dir': _dir,
+            'current_toxenv_name': env_name,
+            'envtmpdir': str(new_env.envtmpdir)
+        })
+        reader.addsubstitutions(**substitutions)
+
+        # generate the command from 'temp_commands'
+        commands = _ArgvlistReader.getargvlist(reader, commands_template, replace=True)
+        new_env.commands.extend(commands)
+
+        current_tox_env_pythonpath = [dir_str]
+        if pythonpath_template:
+            current_tox_env_pythonpath.extend(pythonpath_template.split(':'))
+
+        new_env.setenv['PYTHONPATH'] = ':'.join(current_tox_env_pythonpath)
+
+        # configure coverage files
         # https://pytest-cov.readthedocs.io/en/latest/plugins.html
         new_env.setenv['COV_CORE_SOURCE'] = dir_str
-        new_env.setenv['COV_CORE_DATAFILE'] = str(Path(config.toxinidir, '.coverage.{}'.format(env_name)))
-        coveragerc_file = Path(config.toxinidir, '.coveragerc')
-        if coveragerc_file.exists():
+        # new_env.setenv['COV_CORE_DATAFILE'] = str(Path(config.toxinidir, '.coverage.{}'.format(env_name)))
+
+        # try append coverage file, in a single file.
+        new_env.setenv['COV_CORE_DATAFILE'] = str(Path(config.toxinidir, '.coverage'))
+        if has_coveragerc_file:
             new_env.setenv['COV_CORE_CONFIG'] = str(coveragerc_file)
 
-        dep_path = _dir.joinpath('requirements.txt')
-        dep_config = tox.config.DepConfig(name='-r{}'.format(dep_path))
+        # # inject in the 'new_env' tox testenv, the dependencies defined in lambdaautodiscovery
+        for dep in deps:
+            new_env.deps.append(tox.config.DepConfig(name=dep))
+
+        # inject the absolute path to requirements.txt file of current lambda
+        lambda_requirements_file = _dir.join('requirements.txt')
+        dep_config = tox.config.DepConfig(name='-r{}'.format(lambda_requirements_file))
         new_env.deps.append(dep_config)
 
         config.envconfigs[env_name] = new_env
-        config.envlist.append(env_name)
+        # TODO: find a safe way to verify when tox is running via tox -e
+        # and only add 'env_name' if -e options is equal to 'env_name'
+        config.envlist.insert(0, env_name)
+
+    config.envlist.insert(0, ENV_CONFIG_NAME)
 
 
 def build_compiled_regex(ignored_dirs_regex):
@@ -120,7 +184,7 @@ def find_dirs_with_test_files_and_requirements_file(path, ignored_dir_names_rege
     :param path: pathlib.Path object
     :param ignored_dir_names_regex:
     :return: list of dicts on format
-        [{'dir': pathlib.Path object, 'envname': str }, ]
+        [{'dir': py._path.local.LocalPath object, 'envname': str }, ]
     """
     dirs = []
 
@@ -142,10 +206,12 @@ def find_dirs_with_test_files_and_requirements_file(path, ignored_dir_names_rege
                     dir_contains_test_files = True
 
             if dir_contains_requirements_file and dir_contains_test_files:
+                # tox require a py._path.local.LocalPath instance.
+                directory_local_path = LocalPath(str(directory))
                 dirs.append(
                     dict(
-                        dir=directory,
-                        envname='lambda-{}'.format(directory.parts[-1])
+                        dir=directory_local_path,
+                        envname='{}-{}'.format(ENV_PREFIX, directory.parts[-1])
                     )
                 )
 
