@@ -145,7 +145,8 @@ def tox_configure(config):
         # new_env.setenv['COV_CORE_DATAFILE'] = str(Path(config.toxinidir, '.coverage.{}'.format(env_name)))
 
         # try append coverage file, in a single file.
-        new_env.setenv['COV_CORE_DATAFILE'] = str(Path(config.toxinidir, '.coverage'))
+        # new_env.setenv['COV_CORE_DATAFILE'] = str(Path(config.toxinidir, '.coverage'))
+        new_env.setenv['COVERAGE_FILE'] = str(Path(config.toxinidir, '.coverage'))
         if has_coveragerc_file:
             new_env.setenv['COV_CORE_CONFIG'] = str(coveragerc_file)
 
