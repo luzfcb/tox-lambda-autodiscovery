@@ -1,0 +1,5 @@
+tox>=3.3.0
+pytest
+flake8
+twine
+coverage
