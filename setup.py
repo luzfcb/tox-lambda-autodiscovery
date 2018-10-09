@@ -28,7 +28,7 @@ setup(
     entry_points={'tox': ['lambda-autodiscovery = tox_lambda_autodiscovery.plugin']},
     license='MIT',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 2 - Pre-Alpha',
         'Framework :: tox',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Testing',
