@@ -65,10 +65,10 @@ def tox_configure(config):
     reader.addsubstitutions(distshare=config.distshare)
     # end
 
-    search_base_dirs = reader.getlist('search_base_dirs')
+    search_base_dirs = reader.getlist('search_dirs')
 
     default_ignored_dir_names_from_config = reader.getlist('default_ignored_dir_names')
-    ignored_dir_names = reader.getlist('ignored_dir_names')
+    ignored_dir_names = reader.getlist('ignored_dirs')
 
     if default_ignored_dir_names_from_config:
         ignored_dir_names.extend(default_ignored_dir_names_from_config)
