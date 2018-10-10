@@ -56,7 +56,7 @@ Add a new section named `[testenv:lambdaautodiscovery]` on `tox.ini`.
 
 ### Configuration options for `[testenv:lambdaautodiscovery]`
 
-#### `search_base_dirs`
+#### `search_dirs`
 
 A list of directories that the plugin uses as autodiscover. _The default value is `{toxinidir}`_.
 
@@ -88,19 +88,19 @@ project:
 The `search_base_dirs` looks like the following:
 
 ```ini
-search_base_dirs = backend1
-                   backend2
+search_dirs = backend1
+              backend2
 ```
 
-#### `ignored_dir_names`
+#### `ignored_dirs`
 
 Directories that the plugin should ignore in autodiscovery.
 
 ##### Example
 
 ```
-ignored_dir_names = .serverless
-                    .vscode
+ignored_dirs = .serverless
+               .vscode
 ```
 
 The directories with the following names are ignored by default:
@@ -188,9 +188,9 @@ The configuration:
 [testenv:lambdaautodiscovery]
 commands_workaround = {posargs:pytest} --cov-append --cov={current_toxenv_lambda_dir} --basetemp={envtmpdir}
 
-ignored_dir_names = .serverless
+ignored_dirs = .serverless
 
-search_base_dirs = backend
+search_dirs = backend
 
 setenv =
     PYTHONPATH = {toxinidir}/backend/apps
