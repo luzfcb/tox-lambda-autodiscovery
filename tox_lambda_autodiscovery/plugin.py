@@ -37,11 +37,13 @@ def tox_configure(config):
     # workaround: used to generate the 'commands' on new tox testenv
     commands_template = reader.getstring('commands_workaround', replace=False)
 
-    try:
-        # remove 'lambdaautodiscovery' section from available tox testenv
+    selected_envs = None
+    if config.option.env:
+        selected_envs = config.option.env[0].strip().split(',')
+
+    # remove 'lambdaautodiscovery' section from available tox testenv
+    if ENV_CONFIG_NAME in config.envlist:
         config.envlist.remove(ENV_CONFIG_NAME)
-    except ValueError:  # this error is raised if 'tox -e'
-        pass
 
     # add current_toxenv_lambda_dir and current_toxenv_name
     # to make tox happy, and not get an error
@@ -160,11 +162,13 @@ def tox_configure(config):
         new_env.deps.append(dep_config)
 
         config.envconfigs[env_name] = new_env
-        # TODO: find a safe way to verify when tox is running via tox -e
-        # and only add 'env_name' if -e options is equal to 'env_name'
-        config.envlist.insert(0, env_name)
+        if selected_envs is None:
+            config.envlist.insert(0, env_name)
+        # only add 'env_name' if -e options of tox is equal to 'env_name'
+        elif selected_envs and env_name in selected_envs:
+            config.envlist.insert(0, env_name)
 
-    config.envlist.insert(0, ENV_CONFIG_NAME)
+    # config.envlist.insert(0, ENV_CONFIG_NAME)
 
 
 def build_compiled_regex(ignored_dirs_regex):
