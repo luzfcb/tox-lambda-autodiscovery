@@ -16,7 +16,7 @@ setup(
     description='autodiscovery and autocreate tox testenv to aws lambda function',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    version='0.1.4',
+    version='0.1.5',
     author='Fabio C. Barrionuevo da Luz',
     author_email='bnafta@gmail.com',
     maintainer='Fabio C. Barrionuevo da Luz',
