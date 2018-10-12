@@ -162,13 +162,11 @@ def tox_configure(config):
         new_env.deps.append(dep_config)
 
         config.envconfigs[env_name] = new_env
-        if selected_envs is None:
+        if selected_envs is None and env_name not in config.envlist:
             config.envlist.insert(0, env_name)
         # only add 'env_name' if -e options of tox is equal to 'env_name'
-        elif selected_envs and env_name in selected_envs:
+        elif selected_envs and env_name in selected_envs and env_name not in config.envlist:
             config.envlist.insert(0, env_name)
-
-    # config.envlist.insert(0, ENV_CONFIG_NAME)
 
 
 def build_compiled_regex(ignored_dirs_regex):
