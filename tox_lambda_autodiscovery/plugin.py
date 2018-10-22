@@ -81,6 +81,8 @@ def tox_configure(config):
 
     ignored_dir_names_regex = build_compiled_regex(ignored_dir_names)
 
+    recreate = reader.getbool('recreate', default=False)
+
     # help to customize PYTHONPATH
     setenv_dict = reader.getdict_setenv('setenv')
     if setenv_dict:
@@ -122,12 +124,14 @@ def tox_configure(config):
             config, env_name, section_name, reader._subs, config)
 
         new_env.changedir = _dir
+        new_env.recreate = recreate
         substitutions = reader._subs.copy()
         substitutions.update({
             'changedir': _dir,
             'current_toxenv_lambda_dir': _dir,
             'current_toxenv_name': env_name,
-            'envtmpdir': str(new_env.envtmpdir)
+            'envtmpdir': str(new_env.envtmpdir),
+            'recreate': recreate
         })
         reader.addsubstitutions(**substitutions)
 
